@@ -1,11 +1,13 @@
 import { Platform } from './platforms.js';
 const player = document.querySelector('.player');
-let jumpCounter = 0;
+let jumpCounter = 100;
+let startJump = 100;
 let leftCounter = 0;
-let rightCounter = 80;
+let rightCounter = 0;
 let platformCounter = 40;
-let isJumping;
-let isFalling;
+let jumpInterval;
+let fallInterval;
+let isJumping = false;
 let isGoingRight;
 let isGoingLeft;
 const platforms = [];
@@ -37,57 +39,73 @@ function createNewPlatform(plat) {
 }
 
 function jump() {
-  jumpCounter += 40;
-  player.style.bottom = jumpCounter + 'px';
-  if (jumpCounter >= 250) {
-    isFalling = setInterval(fall, 50);
-    clearInterval(isJumping);
-  }
+  clearInterval(fallInterval);
+  isJumping = true;
+  jumpInterval = setInterval(function () {
+    jumpCounter += 20;
+    player.style.bottom = jumpCounter + 'px';
+    if (jumpCounter >= startJump + 350) {
+      fall();
+    }
+  }, 30);
 }
 
 function moveRight() {
-  if (leftCounter <= 500) {
-    leftCounter += 40;
+  if (leftCounter <= 520) {
+    leftCounter += 5;
     player.style.left = leftCounter + 'px';
   }
 }
 
 function moveLeft() {
   if (leftCounter > 0) {
-    leftCounter -= 40;
+    leftCounter -= 5;
     player.style.left = leftCounter + 'px';
   }
 }
 
 function keyEvents(e) {
   if (e.keyCode == 38) {
-    isJumping = setInterval(jump, 50);
+    jump();
   }
   if (e.keyCode == 39) {
     clearInterval(isGoingLeft);
+    clearInterval(isGoingRight);
     isGoingRight = setInterval(moveRight, 50);
   }
   if (e.keyCode == 37) {
     clearInterval(isGoingRight);
+    clearInterval(isGoingLeft);
     isGoingLeft = setInterval(moveLeft, 50);
   }
 }
 
 function fall() {
-  if (jumpCounter == 0) {
-    clearInterval(isFalling);
-    console.log('game over');
-  }
-  clearInterval(isJumping);
-  jumpCounter -= 40;
-  player.style.bottom = jumpCounter + 'px';
-  platFormLand();
+  clearInterval(jumpInterval);
+  isJumping = false;
+  fallInterval = setInterval(function () {
+    jumpCounter -= 5;
+    player.style.bottom = jumpCounter + 'px';
+    platFormLand();
+
+    if (jumpCounter <= 0) {
+      console.log('game over');
+      clearInterval(jumpInterval);
+      clearInterval(fallInterval);
+      document.removeEventListener('keydown', keyEvents);
+    }
+  }, 30);
 }
 
 function platFormLand() {
   platforms.forEach((plat) => {
-    if (jumpCounter > plat.height && jumpCounter < plat.height + 20) {
-      clearInterval(isFalling);
+    if (
+      jumpCounter >= plat.height &&
+      jumpCounter <= plat.height + 20 &&
+      leftCounter <= plat.left + 200 &&
+      leftCounter + 80 >= plat.left
+    ) {
+      startJump = jumpCounter;
       jump();
       console.log('landed');
     }
@@ -95,6 +113,7 @@ function platFormLand() {
 }
 
 document.addEventListener('keydown', keyEvents);
-
+leftCounter = platforms[0].left;
+player.style.left = leftCounter + 'px';
 let platformMove = setInterval(movePlatforms, 500);
 console.log(platforms);
