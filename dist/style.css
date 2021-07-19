@@ -1,0 +1,23 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.game-container {
+  position: relative;
+  margin: 25px;
+  width: 600px;
+  height: 800px;
+  background: blue;
+}
+
+.player {
+  position: absolute;
+  width: 80px;
+  height: 100px;
+  background: green;
+  bottom: 0px;
+}
