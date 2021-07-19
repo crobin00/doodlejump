@@ -2,10 +2,12 @@ class Platform {
   constructor(height, left) {
     this.height = height;
     this.left = left;
+    this.div = null;
   }
 
   createPlatform() {
     const platform = document.createElement('div');
+    this.div = platform;
     const gameContainer = document.querySelector('.game-container');
     gameContainer.appendChild(platform);
     platform.style.width = '100px';
