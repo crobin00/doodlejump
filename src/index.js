@@ -2,11 +2,12 @@ import { Platform } from './platforms.js';
 const player = document.querySelector('.player');
 let jumpCounter = 0;
 let leftCounter = 0;
-let rightCounter = 0;
+let rightCounter = 80;
 let platformCounter = 40;
 let isJumping;
 let isFalling;
 let isGoingRight;
+let isGoingLeft;
 const platforms = [];
 
 for (let i = 0; i < 5; i++) {
@@ -44,16 +45,38 @@ function jump() {
   }
 }
 
+function moveRight() {
+  if (leftCounter <= 500) {
+    leftCounter += 40;
+    player.style.left = leftCounter + 'px';
+  }
+}
+
+function moveLeft() {
+  if (leftCounter > 0) {
+    leftCounter -= 40;
+    player.style.left = leftCounter + 'px';
+  }
+}
+
 function keyEvents(e) {
   if (e.keyCode == 38) {
     isJumping = setInterval(jump, 50);
   }
+  if (e.keyCode == 39) {
+    clearInterval(isGoingLeft);
+    isGoingRight = setInterval(moveRight, 50);
+  }
+  if (e.keyCode == 37) {
+    clearInterval(isGoingRight);
+    isGoingLeft = setInterval(moveLeft, 50);
+  }
 }
 
 function fall() {
-  if (jumpCounter <= 0) {
+  if (jumpCounter == 0) {
     clearInterval(isFalling);
-    return;
+    console.log('game over');
   }
   clearInterval(isJumping);
   jumpCounter -= 40;
@@ -64,7 +87,6 @@ function fall() {
 function platFormLand() {
   platforms.forEach((plat) => {
     if (jumpCounter > plat.height && jumpCounter < plat.height + 20) {
-      jumpCounter = 0;
       clearInterval(isFalling);
       jump();
       console.log('landed');
